@@ -1,8 +1,10 @@
-package model.exception;
+package model.entidades;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
+
+import model.exception.ReservasException;
 
 public class Reservas {
 	private Integer nQuarto;
@@ -11,7 +13,10 @@ public class Reservas {
 
 	public static SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
-	public Reservas(Integer nQuarto, Date checkIn, Date checkOut) {
+	public Reservas(Integer nQuarto, Date checkIn, Date checkOut) throws ReservasException {
+		if (!checkOut.after(checkIn)) {
+			throw new ReservasException("A data de check-in deve ser primeiro que a de check-out");
+		}
 		this.nQuarto = nQuarto;
 		this.checkIn = checkIn;
 		this.checkOut = checkOut;
@@ -38,18 +43,14 @@ public class Reservas {
 		return TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
 	}
 
-	public String atualizarDatas(Date checkIn, Date checkOut) {
+	public void atualizarDatas(Date checkIn, Date checkOut) throws ReservasException {
 		Date now = new Date();
 		if (checkIn.before(now) || checkOut.before(now)) {
-			return "Erro nas reservar: As reservas atualizadas devem ser futuras datas";
-		}
-		if (!checkOut.after(checkIn)) {
-			return "A data de check-in deve ser primeiro que a de check-out";
+			throw new ReservasException("Erro nas reservar: As reservas atualizadas devem ser futuras datas");
 		}
 
 		this.checkIn = checkIn;
 		this.checkOut = checkOut;
-		return null;
 	}
 
 	@Override
